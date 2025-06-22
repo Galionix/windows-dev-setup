@@ -73,6 +73,7 @@ $FinishGit = $true
 $FinishDocker = $true
 
 $Tools = @("notepadplusplus", "git", "vscode", "telegram", "7zip", "docker-desktop", ...)
+## Pick your tools here https://community.chocolatey.org/packages
 ```
 You can toggle what to install and extend tool lists with just a few variables.
 

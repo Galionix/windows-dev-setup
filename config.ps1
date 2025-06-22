@@ -28,4 +28,4 @@ $Tools = @(
 "malwarebytes"
 "telegram"
 )
-# see more athttps://community.chocolatey.org/packages
+# see more at https://community.chocolatey.org/packages
