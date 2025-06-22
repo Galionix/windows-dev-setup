@@ -3,29 +3,30 @@
 $GitUserName = "Dmitry Galaktionov"
 $GitUserEmail = "galionix2@gmail.com"
 
-$InstallHmaVpn = $true
-$InstallStrokesPlusNet = $true
-$InstallPuntoSwitcher = $true
-$ConfigureWindows = $true
+$InstallHmaVpn = $false
+$InstallStrokesPlusNet = $false
+$InstallPuntoSwitcher = $false
+$ConfigureWindows = $false
 
-$FinishGit = $true
-$FinishNvm = $true
-$FinishDocker = $true
+$FinishGit = $false
+$FinishNvm = $false
+$AllowNodeScripts = $true
+$FinishDocker = $false
 # === Tools to Install ===
 $Tools = @(
-"notepadplusplus"
-"git"
-"nvm"
-"vscode"
-"docker-desktop"
-"googlechrome"
-"7zip"
-"firacode"
-"powertoys"
-"zoom"
-"vlc"
-"spacesniffer"
-"malwarebytes"
-"telegram"
+# "notepadplusplus"
+# "git"
+# "nvm"
+# "vscode"
+# "docker-desktop"
+# "googlechrome"
+# "7zip"
+# "firacode"
+# "powertoys"
+# "zoom"
+# "vlc"
+# "spacesniffer"
+# "malwarebytes"
+# "telegram"
 )
 # see more at https://community.chocolatey.org/packages

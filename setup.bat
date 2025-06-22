@@ -37,6 +37,7 @@ REM --- Запуск настройки системы ---
 
 powershell -ExecutionPolicy Bypass -File "%~dp0system_settings\ConfigureSystem.ps1"
 powershell -ExecutionPolicy Bypass -File "%~dp0system_settings\ConfigureTaskbar.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0system_settings\AllowNodeScripts.ps1"
 
 echo Installing programs...
 
