@@ -2,7 +2,12 @@
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
+. "$PSScriptRoot\..\config.ps1"
 
+if (-not $FinishNvm) {
+    Write-Host "Skipping Configure Nvm (disabled in config)" -ForegroundColor Yellow
+    exit
+}
 # Find the nvm executable dynamically
 $nvmPath = Get-Command nvm | Select-Object -ExpandProperty Source
 
@@ -14,7 +19,7 @@ if ($nvmPath) {
         Write-Host "[OK] LTS version of Node.js installed" -ForegroundColor Green
         LogSuccess "LTS version of Node.js installed and activated"
 
-	
+
         # Install npx (if not included in Node.js version)
         LogInfo "Installing npx..."
         npm install -g npx yarn pnpm postman

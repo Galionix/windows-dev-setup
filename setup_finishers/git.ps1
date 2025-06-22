@@ -1,8 +1,12 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\config.ps1"
 . "$PSScriptRoot\..\common\logger.ps1"
-# config.ps1 должен быть подключён заранее
-# . "$PSScriptRoot\..\config.ps1"
+. "$PSScriptRoot\..\config.ps1"
+
+if (-not $FinishGit) {
+    Write-Host "Skipping Configure Git (disabled in config)" -ForegroundColor Yellow
+    exit
+}
 
 Write-Host "=== Configuring Git ===" -ForegroundColor Cyan
 LogInfo "Configuring Git global user.name and user.email..."

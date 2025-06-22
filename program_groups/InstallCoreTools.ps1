@@ -1,4 +1,7 @@
 # Install Core Developer Tools
+
+. "$PSScriptRoot\..\config.ps1"
+
 $env:chocolateyAllowEmptyChecksums = 'true'
 $env:chocolateyUseWindowsCompression = 'true'
 $env:chocolateyConfirmAll = 'true'
@@ -7,25 +10,7 @@ $env:chocolateyForce = 'true'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
 
-$packages = @(
-    "notepadplusplus"
-    "git"
-    "nvm"
-    "vscode"
-    "docker-desktop"
-    "googlechrome"
-    "7zip"
-    "firacode"
-    "powertoys"
-"zoom"
-"vlc"
-"spacesniffer"
-"malwarebytes"
-"telegram"
-
-)
-
-foreach ($pkg in $packages) {
+foreach ($pkg in $Tools) {
 
 $installed = choco list --local-only --exact $pkg --limit-output 2>&1
 
@@ -53,6 +38,4 @@ catch {
 
 
 }
-
-# Now call the external script for installing Node.js LTS
-. "$PSScriptRoot\..\program_groups\InstallNodeLTS.ps1"
+Write-Host "[OK] All core developer tools installed" -ForegroundColor Green

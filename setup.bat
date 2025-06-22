@@ -35,20 +35,23 @@ echo Starting system configuration...
 
 REM --- Запуск настройки системы ---
 
-@REM powershell -ExecutionPolicy Bypass -File "%~dp0system_settings\ConfigureSystem.ps1"
-@REM powershell -ExecutionPolicy Bypass -File "%~dp0system_settings\ConfigureTaskbar.ps1"
-@REM powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallHmaVpn.ps1"
-@REM powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallStrokesPlusNet.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0system_settings\ConfigureSystem.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0system_settings\ConfigureTaskbar.ps1"
 
+echo Installing programs...
 
-REM --- Здесь можно вызвать другие скрипты, например:
-REM powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallCoreTools.ps1"
-REM powershell -ExecutionPolicy Bypass -File "%~dp0vscode\ConfigureVSCode.ps1"
-REM powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallPuntoSwitcher.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallHmaVpn.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallStrokesPlusNet.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallCoreTools.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0program_groups\InstallPuntoSwitcher.ps1"
 
 echo Running Setup Finishers...
 powershell -ExecutionPolicy Bypass -File "%~dp0setup_finishers\git.ps1"
 powershell -ExecutionPolicy Bypass -File "%~dp0setup_finishers\WSLUpdate.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0setup_finishers\InstallNodeLTS.ps1"
+
+echo Setup tasks completed.
+
 start notepad "%~dp0logs\install.log"
 
 echo.
