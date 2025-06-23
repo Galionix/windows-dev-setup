@@ -1,6 +1,6 @@
 # 🛠️ Windows Auto Setup Script
 
-![Demonstartion](images/demo.gif)
+![Demonstartion](demo.gif)
 
 A fully automated, script-based system configuration for Windows, written in PowerShell + Batch. Designed to quickly install tools, configure settings, and prepare a developer environment in minutes.
 
