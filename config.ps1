@@ -3,17 +3,9 @@
 $GitUserName = "Dmitry Galaktionov"
 $GitUserEmail = "galionix2@gmail.com"
 
-$InstallHmaVpn = $true
-$InstallStrokesPlusNet = $true
-$InstallPuntoSwitcher = $true
-$ConfigureWindows = $true
-
-$FinishGit = $true
-$FinishNvm = $true
-$AllowNodeScripts = $true
-$FinishDocker = $true
 # === Tools to Install ===
 $Tools = @(
+    "screentogif"
 "notepadplusplus"
 "git"
 "nvm"

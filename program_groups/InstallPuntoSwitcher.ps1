@@ -1,16 +1,10 @@
 # Install Punto Switcher silently from archive
-. "$PSScriptRoot\..\config.ps1"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
 
 $punto7zPath = "$PSScriptRoot\..\external\Punto.Switcher.v4.5.0.583.7z"
 $extractDir = "$PSScriptRoot\..\external\Punto.Switcher.v4.5.0.583"
 $exePath = Join-Path $extractDir "Punto.Switcher.v4.5.0.583\Punto.Switcher.v4.5.0.583.exe"
-
-if (-not $InstallPuntoSwitcher) {
-    Write-Host "Skipping Punto Switcher installation (disabled in config)" -ForegroundColor Yellow
-    return  # или exit, если это исполняемый скрипт, а не функция
-}
 
 try {
     if (-Not (Test-Path $exePath)) {

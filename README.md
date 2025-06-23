@@ -1,5 +1,7 @@
 # 🛠️ Windows Auto Setup Script
 
+![Demonstartion](images/demo.gif)
+
 A fully automated, script-based system configuration for Windows, written in PowerShell + Batch. Designed to quickly install tools, configure settings, and prepare a developer environment in minutes.
 
 ---
@@ -65,7 +67,6 @@ Everything is driven by a central config file:
 $GitUserName = "Dmitry Galaktionov"
 $GitUserEmail = "galionix2@gmail.com"
 
-$InstallHmaVpn = $true
 $InstallStrokesPlusNet = $true
 $ConfigureWindows = $true
 

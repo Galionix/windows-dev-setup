@@ -2,12 +2,6 @@
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
-. "$PSScriptRoot\..\config.ps1"
-
-if (-not $ConfigureWindows) {
-    Write-Host "Skipping Configure Windows (disabled in config)" -ForegroundColor Yellow
-    exit
-}
 
 try {
     LogInfo "Applying Taskbar configuration..."

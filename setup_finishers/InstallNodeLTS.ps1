@@ -2,12 +2,7 @@
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
-. "$PSScriptRoot\..\config.ps1"
 
-if (-not $FinishNvm) {
-    Write-Host "Skipping Configure Nvm (disabled in config)" -ForegroundColor Yellow
-    exit
-}
 # Find the nvm executable dynamically
 $nvmPath = Get-Command nvm | Select-Object -ExpandProperty Source
 

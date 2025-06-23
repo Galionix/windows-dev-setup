@@ -2,13 +2,6 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
 
-. "$PSScriptRoot\..\config.ps1"
-
-if (-not $AllowNodeScripts) {
-    Write-Host "Skipping Configure AllowNodeScripts (disabled in config)" -ForegroundColor Yellow
-    exit
-}
-
 Write-Host "[...] Setting execution policy for Node scripts..." -ForegroundColor Cyan
 LogInfo "Setting ExecutionPolicy to RemoteSigned for Node.js scripts"
 

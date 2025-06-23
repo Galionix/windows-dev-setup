@@ -1,11 +1,6 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
-. "$PSScriptRoot\..\config.ps1"
 
-if (-not $FinishDocker) {
-    Write-Host "Skipping Configure Docker (disabled in config)" -ForegroundColor Yellow
-    exit
-}
 Write-Host "=== Updating WSL for Docker ===" -ForegroundColor Cyan
 LogInfo "Running 'wsl --update' to ensure WSL is up to date..."
 
