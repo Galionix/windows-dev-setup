@@ -1,11 +1,16 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 . "$PSScriptRoot\..\common\logger.ps1"
 
-Write-Host "Checking Chocolatey installation..." -ForegroundColor Cyan
-LogInfo "Checking Chocolatey installation"
+Write-Host "=== Checking Package Managers Installation ===" -ForegroundColor Cyan
+LogInfo "Checking Chocolatey and Scoop installation..."
 
+# Состояние установки
+$allOk = $true
+
+# --- Chocolatey ---
+Write-Host "[...] Checking Chocolatey..." -ForegroundColor Cyan
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-    Write-Host "[...] Chocolatey not found. Installing..." -ForegroundColor Yellow
+    Write-Host "[INSTALL] Chocolatey not found. Installing..." -ForegroundColor Yellow
     LogInfo "Chocolatey not found. Installing..."
 
     try {
@@ -16,30 +21,62 @@ if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
 
         if (Get-Command choco -ErrorAction SilentlyContinue) {
             Write-Host "[OK] Chocolatey installed successfully" -ForegroundColor Green
-            LogSuccess "Chocolatey successfully installed"
+            LogSuccess "Chocolatey installed"
 
             $chocoBin = "$env:ALLUSERSPROFILE\chocolatey\bin"
-
             if (-not ($env:PATH -split ";" | Where-Object { $_ -eq $chocoBin })) {
-                Write-Host "[INFO] Adding Chocolatey bin to PATH: $chocoBin" -ForegroundColor Cyan
-                LogInfo "Adding Chocolatey bin to PATH: $chocoBin"
                 $env:PATH += ";$chocoBin"
-            } else {
-                Write-Host "[INFO] Chocolatey bin path already in PATH: $chocoBin" -ForegroundColor Gray
-                LogInfo "Chocolatey bin path already present in PATH: $chocoBin"
+                Write-Host "[INFO] Added Chocolatey to PATH" -ForegroundColor Gray
             }
-
         } else {
             Write-Host "[ERROR] Chocolatey installation failed" -ForegroundColor Red
             LogError "Chocolatey installation failed"
-            throw "Chocolatey installation failed"
+            $allOk = $false
         }
-    } catch {
+    }
+    catch {
         Write-Host "[ERROR] Chocolatey install error: $($_.Exception.Message)" -ForegroundColor Red
         LogError "Chocolatey install error: $($_.Exception.Message)"
-        throw
+        $allOk = $false
     }
 } else {
-    Write-Host "[SKIP] Chocolatey is already installed" -ForegroundColor Gray
-    LogInfo "Chocolatey is already installed"
+    Write-Host "[SKIP] Chocolatey already installed" -ForegroundColor Gray
 }
+
+# --- Scoop ---
+Write-Host "[...] Checking Scoop..." -ForegroundColor Cyan
+if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
+    Write-Host "[INSTALL] Scoop not found. Installing..." -ForegroundColor Yellow
+    LogInfo "Scoop not found. Installing..."
+
+    try {
+        Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+        irm get.scoop.sh | iex
+
+        if (Get-Command scoop -ErrorAction SilentlyContinue) {
+            Write-Host "[OK] Scoop installed successfully" -ForegroundColor Green
+            LogSuccess "Scoop installed"
+        } else {
+            Write-Host "[ERROR] Scoop installation failed" -ForegroundColor Red
+            LogError "Scoop installation failed"
+            $allOk = $false
+        }
+    }
+    catch {
+        Write-Host "[ERROR] Scoop install error: $($_.Exception.Message)" -ForegroundColor Red
+        LogError "Scoop installation error: $($_.Exception.Message)"
+        $allOk = $false
+    }
+} else {
+    Write-Host "[SKIP] Scoop already installed" -ForegroundColor Gray
+}
+
+# --- Финальная проверка ---
+if (-not $allOk) {
+    Write-Host "[FATAL] One or more package managers failed to install. Exiting..." -ForegroundColor Red
+    LogError "At least one package manager missing. Setup halted."
+    exit 1
+}
+
+Write-Host "[OK] All package managers ready" -ForegroundColor Green
+LogSuccess "Chocolatey and Scoop available"

@@ -6,7 +6,27 @@
 . "$PSScriptRoot\open-url.ps1"
 
 # Проверка ключа
-if (-not $openai_api_key -or $openai_api_key -eq "") {
+# Сначала пробуем взять ключ из системных переменных
+$envKey = [Environment]::GetEnvironmentVariable("OPENAI_API_KEY", "User")
+
+
+try {
+    scoop bucket add extras
+    scoop bucket add versions
+    scoop bucket add nonportable
+    Write-Host "[OK] Scoop buckets added" -ForegroundColor Green
+}
+catch {
+    Write-Host "[WARNING] Buckets might already be added" -ForegroundColor Yellow
+}
+
+# Если не нашли — fallback на переменную из конфига
+if (-not $envKey -or $envKey -eq "") {
+    $envKey = $openai_api_key
+}
+
+# Если ключа всё равно нет — просим пользователя его получить
+if (-not $envKey -or $envKey -eq "") {
     Write-Host "[WARNING] OpenAI API key is missing. Opening setup page..." -ForegroundColor Yellow
     Open-Url "https://platform.openai.com/api-keys"
     exit
@@ -24,14 +44,14 @@ if (-not $userInput) {
 # telegram, vlc media player, vscode, docker
 # Запрос в OpenAI
 $headers = @{
-    "Authorization" = "Bearer $openai_api_key"
+    "Authorization" = "Bearer $envKey"
     "Content-Type" = "application/json"
 }
 
 $chatBody = @{
     model = "gpt-3.5-turbo"
     messages = @(
-        @{ role = "system"; content = "You are an assistant helping to extract program names from user requests. Your answer must be only a JSON array of software names, no explanations. Strictly only in english. Convert program names to smaller ones, vlc media player to vlc" }
+        @{ role = "system"; content = "You are an assistant helping to extract program names from user requests. Your answer must be only a JSON array of software names, no explanations. Strictly only in english." }
         @{ role = "user"; content = $userInput }
     )
 }
@@ -52,36 +72,108 @@ catch {
     exit
 }
 
-# Поиск в Chocolatey телеграм, влс медиа плеер, вскод, докер
+# Полный список всех найденных пакетов
 $allPackages = @()
 
 foreach ($prog in $programs) {
+
+    ### Chocolatey поиск
     Write-Host "[...] Searching for '$prog' in Chocolatey..." -ForegroundColor Cyan
     try {
         $url = "https://community.chocolatey.org/json/JsonApi?invoke&action=GetSuggestions&SearchTerm=$prog"
         $result = Invoke-RestMethod -Uri $url -Method Get
 
-        if ($result.Count -gt 0) {
-            foreach ($pkg in $result) {
-                $allPackages += [PSCustomObject]@{
-                    PackageId     = $pkg.PackageId
-                    DownloadCount = $pkg.DownloadCount
-                    Selected      = $false
-                }
+        foreach ($pkg in $result) {
+            $obj = [PSCustomObject]@{
+                PackageId     = $pkg.PackageId
+                DownloadCount = $pkg.DownloadCount
+                Installer     = "choco"
+                Selected      = $false
             }
-        } else {
-            Write-Host "No results found for $prog" -ForegroundColor Yellow
+            $allPackages += $obj
+            Write-Host "[CHOCOLATEY] Found: $($obj.PackageId), Downloads: $($obj.DownloadCount)"
         }
     }
-    catch {
-        Write-Host "[ERROR] Failed to search for $prog" -ForegroundColor Red
+    catch { Write-Host "[ERROR] Failed to search Chocolatey" -ForegroundColor Red }
+
+    ### Winget поиск
+    Write-Host "[...] Searching for '$prog' in Winget..." -ForegroundColor Cyan
+    try {
+        $wingetResults = winget search --name $prog --source winget | Select-String "^\S+\s+\S+" | Where-Object { $_ -notmatch "Name\s+Id" }
+
+        foreach ($line in $wingetResults) {
+            $parts = $line -split "\s{2,}"
+            $name = $parts[0].Trim()
+
+            if ($name -and ($allPackages.PackageId -notcontains $name)) {
+                $obj = [PSCustomObject]@{
+                    PackageId     = $name
+                    DownloadCount = 0
+                    Installer     = "winget"
+                    Selected      = $false
+                }
+                $allPackages += $obj
+                Write-Host "[WINGET] Found: $($obj.PackageId)"
+            }
+        }
+    }
+    catch { Write-Host "[ERROR] Failed to search Winget" -ForegroundColor Red }
+
+Write-Host "[...] Searching for '$prog' in Scoop..." -ForegroundColor Cyan
+Write-Host "[...] Searching for '$prog' in Scoop..." -ForegroundColor Cyan
+try {
+    $scoopResults = scoop search $prog 2>&1
+
+    $parse = $false
+    foreach ($line in $scoopResults) {
+        Write-Host "[SCOOP] Processing line: $line" -ForegroundColor Gray
+        if ($line -match '^Name\s+Version\s+Source') {
+            $parse = $true
+            continue
+        }
+
+        # Пропуск строки-информатора
+        if ($line -match '^Results from local buckets') {
+            continue
+        }
+
+        if ($parse -and $line.Trim() -ne "") {
+            $parts = $line -split "\s{2,}"  # разделяем по двойным пробелам
+            $id = $parts[0].Trim()
+
+            if ($id -and ($allPackages.PackageId -notcontains $id)) {
+                $obj = [PSCustomObject]@{
+                    PackageId     = $id
+                    DownloadCount = 0
+                    Installer     = "scoop"
+                    Selected      = $false
+                }
+                $allPackages += $obj
+                Write-Host "[SCOOP] Found: $($obj.PackageId)"
+            }
+        }
     }
 }
+catch {
+    Write-Host "[ERROR] Failed to search Scoop" -ForegroundColor Red
+}
+
+
+
+
+}
+
+
 
 if (-not $allPackages.Count) {
     Write-Host "[WARNING] No packages found. Exiting." -ForegroundColor Yellow
     exit
 }
+
+# Write-Host "[ERROR] This script requires administrator privileges. Please run as Administrator." -ForegroundColor Red
+# Pause
+# exit
+
 
 # Меню выбора
 $index = 0
@@ -94,7 +186,7 @@ function DrawMenu {
 
     for ($i = 0; $i -lt $allPackages.Count; $i++) {
         $prefix = if ($allPackages[$i].Selected) { "[X]" } else { "[ ]" }
-        $line = "$prefix $($allPackages[$i].PackageId) [$($allPackages[$i].DownloadCount) downloads]"
+        $line = "$prefix $($allPackages[$i].PackageId) [$($allPackages[$i].Installer)]"
 
         if ($i -eq $index) {
             Write-Host "-> $line" -ForegroundColor Cyan
@@ -145,10 +237,12 @@ $selectedTools | ConvertTo-Json -Compress | Set-Content "$tempPath\selected-tool
 Write-Host "`n[OK] Selected tools saved to temp\selected-tools.json" -ForegroundColor Green
 
 
+
 # Запускаем установку
 Write-Host "[...] Launching InstallCoreTools.ps1..." -ForegroundColor Cyan
 try {
-    & powershell -ExecutionPolicy Bypass -File "$PSScriptRoot\..\program_groups\InstallCoreTools.ps1" -Strict
+    # tempory
+    # & powershell -ExecutionPolicy Bypass -File "$PSScriptRoot\..\program_groups\InstallCoreTools.ps1" -Strict
 }
 catch {
     Write-Host "[ERROR] Failed to launch InstallCoreTools.ps1" -ForegroundColor Red
