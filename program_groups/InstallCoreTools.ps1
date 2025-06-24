@@ -1,3 +1,6 @@
+param (
+    [switch]$Strict
+)
 . "$PSScriptRoot\..\config.ps1"
 
 $env:chocolateyAllowEmptyChecksums = 'true'
@@ -13,20 +16,17 @@ $selectedToolsPath = "$PSScriptRoot\..\temp\selected-tools.json"
 Write-Host "[INFO] Starting Core Tools installation..." -ForegroundColor Cyan
 LogInfo "Starting Core Tools installation"
 
-# Проверяем наличие JSON
 if (-not (Test-Path $selectedToolsPath)) {
     Write-Host "[ERROR] No selected tools found. Run the setup selector first." -ForegroundColor Red
     LogError "Selected tools list not found at $selectedToolsPath"
     exit 1
 }
 
-# Чтение выбранных тулов
 try {
     $jsonContentRaw = Get-Content $selectedToolsPath -Raw
-    LogInfo "Raw JSON content read from file: $jsonContentRaw"
-
     $SelectedTools = $jsonContentRaw | ConvertFrom-Json
-    LogInfo "Parsed selected tools: $($SelectedTools -join ', ')"
+
+    LogInfo "Loaded selected tools: $($SelectedTools -join ', ')"
     Write-Host "[INFO] Loaded selected tools: $($SelectedTools -join ', ')" -ForegroundColor Cyan
 }
 catch {
@@ -36,15 +36,20 @@ catch {
     exit 1
 }
 
-# Итерация по базовому списку тулов из конфиг файла
-foreach ($pkg in $Tools) {
-    LogInfo "Evaluating tool: $pkg"
+# Определяем список для установки
+if ($Strict) {
+    $toolsToInstall = $SelectedTools
+    Write-Host "[INFO] Strict mode enabled - installing only selected tools" -ForegroundColor Yellow
+    LogInfo "Strict mode enabled - installing: $($toolsToInstall -join ', ')"
+} else {
+    $toolsToInstall = $Tools | Where-Object { $_ -in $SelectedTools }
+    Write-Host "[INFO] Normal mode - filtering selected tools against known tools list" -ForegroundColor Yellow
+    LogInfo "Normal mode - filtered tools: $($toolsToInstall -join ', ')"
+}
 
-    if ($pkg -notin $SelectedTools) {
-        Write-Host "[SKIP] $pkg is not selected for installation"
-        LogInfo "$pkg skipped - not in selected tools list"
-        continue
-    }
+# Установка
+foreach ($pkg in $toolsToInstall) {
+    LogInfo "Evaluating tool: $pkg"
 
     $installed = choco list --local-only --exact $pkg --limit-output 2>&1
     LogInfo "Chocolatey local lookup result for ${pkg}: $installed"

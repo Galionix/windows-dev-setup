@@ -46,6 +46,7 @@ $steps += @(
     @{ Name = "=== FINALIZATION ==="; Separator = $true },
     @{ Name = "Setup Git Config"; Path = "$PSScriptRoot\setup_finishers\git.ps1"; Selected = $true },
     @{ Name = "Update WSL"; Path = "$PSScriptRoot\setup_finishers\WSLUpdate.ps1"; Selected = $true },
+    @{ Name = "OpenAIEnv"; Path = "$PSScriptRoot\setup_finishers\OpenAIEnv.ps1"; Selected = $false },
     @{ Name = "Install Node LTS"; Path = "$PSScriptRoot\setup_finishers\InstallNodeLTS.ps1"; Selected = $true }
 )
 

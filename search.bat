@@ -31,7 +31,7 @@ if %errorlevel% neq 0 (
 )
 
 :: Main installation script
-powershell -ExecutionPolicy Bypass -File "%~dp0setup.ps1"
+powershell -ExecutionPolicy Bypass -File "%~dp0\common\Search-ChocoWithAI.ps1"
 
 echo.
 echo All tasks finished. Press any key to exit...

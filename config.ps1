@@ -2,7 +2,7 @@
 
 $GitUserName = "Dmitry Galaktionov"
 $GitUserEmail = "galionix2@gmail.com"
-
+$openai_api_key = ""
 # === Tools to Install ===
 $Tools = @(
     "screentogif"
