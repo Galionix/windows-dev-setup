@@ -98,11 +98,11 @@ Toggle features or extend the tools list with simple variables.
 
 New feature: Search across **Chocolatey**, **Winget**, and **Scoop** with AI assistance.
 
-✅ Describe apps you want in English
-✅ AI extracts program names
-✅ Script searches all major Windows package managers
-✅ Interactive selector lets you pick and save packages
-✅ Supports mixed sources (e.g., Chocolatey + Scoop)
+* ✅ Describe apps you want in English
+* ✅ AI extracts program names
+* ✅ Script searches all major Windows package managers
+* ✅ Interactive selector lets you pick and save packages
+* ✅ Supports mixed sources (e.g., Chocolatey + Scoop)
 
 ---
 
