@@ -1,107 +1,160 @@
 # 🛠️ Windows Auto Setup Script
 
-![Demonstartion](demo.gif)
+![Demonstration](demo.gif)
 
-A fully automated, script-based system configuration for Windows, written in PowerShell + Batch. Designed to quickly install tools, configure settings, and prepare a developer environment in minutes.
+A fully automated, script-driven environment setup for Windows. Built with PowerShell + Batch for rapid system configuration, software installation, and developer workspace preparation.
 
 ---
 
 ## 📦 Features
 
-### 1. 🧩 Modular Structure
-Each script is separated by responsibility:
-- `setup.bat` — main entry point with elevation check and ordered execution
-- `program_groups/` — install specific apps or groups
-- `system_settings/` — configure system-level settings like taskbar or PowerToys
-- `setup_finishers/` — post-install configuration like WSL update or Git identity
-- `common/` — shared utilities like logging and URL launching
-- `config.ps1` — central configuration file for easy customization
+### 1. 🧙‍♂️ Modular, Clean Structure
 
-### 2. 🧑‍💻 Automatic Admin Elevation
-Ensures the script always runs as administrator — silently relaunches itself if needed.
+Each script is separated by role for easy maintenance:
 
-### 3. ☁️ Installs Chocolatey if Missing
-Detects whether Chocolatey is installed. If not, installs it and asks the user to rerun the script.
+* `setup.bat` — Main launcher with admin check and ordered execution
+* `program_groups/` — Installs specific apps or groups of tools
+* `system_settings/` — System-level tweaks (taskbar, hidden files, etc.)
+* `setup_finishers/` — Final steps like WSL update or Git setup
+* `common/` — Shared utilities (logging, URL opening, functions)
+* `config.ps1` — Central configuration file
 
-# Warning: it may fail after Chocolatey installation, so you may need to run it again.
+---
 
-### 4. 📥 Core Dev Tools Installer
-Installs essential development software using Chocolatey (configured in `config.ps1`):
-- VS Code
-- Git
-- NVM + Node LTS
-- Docker Desktop
-- PowerToys
-- 7-Zip
-- FiraCode
-- Google Chrome
-- VLC, Zoom, Telegram, and more...
+### 2. 🛡️ Automatic Admin Elevation
 
-### 5. 🌐 Silent Installer Helpers
-Includes built-in functions to:
-- Download and run `.exe` or `.zip` installers silently
-- Add apps to startup if needed
-- Open URLs post-installation for activation or info
+The script self-restarts as administrator if needed.
 
-### 6. 💼 Optional Software Support
-Supports optional tools like:
-- **HMA VPN** – installs silently and opens Gmail link for code retrieval
-- **StrokesPlus.net** – downloads portable version, adds to startup
-- **Punto Switcher** – installs from a packed archive
+### 3. ☁️ Chocolatey Bootstrap
 
-### 7. 🖥️ Windows Personalization
-System tweaks like:
-- Configuring the taskbar layout
-- Setting up PowerToys
-- Setting system defaults
+Detects and installs Chocolatey and Scoop automatically if missing.
 
-### 8. 🏁 Setup Finalizers
-Includes post-install configuration:
-- `WSL --update` for Docker support
-- Setting up Git global config
-- Installing Node.js LTS with NVM
+> ⚠️ You may need to relaunch the script manually after first installing Chocolatey and Scoop.
 
-### 9. ⚙️ Centralized Config File (`config.ps1`)
-Everything is driven by a central config file:
+---
+
+## 🛠️ Software Installation
+
+### 4. 💻 Core Dev Tools Installer
+
+Installs essentials (configured in `config.ps1`):
+
+* VS Code
+* Git
+* NVM + Node.js LTS
+* Docker Desktop
+* PowerToys
+* 7-Zip
+* FiraCode
+* Chrome, VLC, Telegram, and more
+
+---
+
+### 5. 🌐 Custom Silent Installers
+
+Built-in helper functions:
+
+* `Install-AndLaunch` — Downloads `.exe`, installs silently, optional link after
+* `Install-ZipExecutableWithUrl` — Downloads ZIP, extracts, launches portable app, optional startup shortcut
+
+---
+
+### 6. 🏑 System Finalizers
+
+* `WSL --update` for Docker compatibility
+* Global Git config
+* Node.js LTS setup via NVM
+
+---
+
+## 🔧 Windows Tweaks
+
+* Taskbar behavior (show hidden files, extensions, protected OS files)
+* GameBar and Bing search disabled
+* PowerToys configuration
+
+---
+
+## ⚙️ Central Config (`config.ps1`)
+
+Control extras in one file:
+
 ```powershell
 $GitUserName = "Dmitry Galaktionov"
 $GitUserEmail = "galionix2@gmail.com"
 
-$InstallStrokesPlusNet = $true
-$ConfigureWindows = $true
-
-$FinishGit = $true
-$FinishDocker = $true
+#### needed for AI-powered package discovery
+$openai_api_key = ""
 
 $Tools = @("notepadplusplus", "git", "vscode", "telegram", "7zip", "docker-desktop", ...)
-## Pick your tools here https://community.chocolatey.org/packages
+
 ```
-You can toggle what to install and extend tool lists with just a few variables.
 
-# 🛠️ **Custom Installers via Functions**:
-
-You can easily add new apps to the setup by using these helper functions:
-
-  - `Install-AndLaunch`: For downloading and silently installing `.exe` files.
-  - `Install-ZipExecutableWithUrl`: For downloading, extracting, and running
-
-### `Install-AndLaunch`
-
-Downloads an `.exe` installer, runs it silently, and optionally opens a web page after installation.
-
-
-### `Install-ZipExecutableWithUrl`
-
-Downloads a ZIP archive, extracts it, launches the specified `.exe` inside, and optionally adds it to startup.
-
-
-## 🏁 How to Use
-
-1. Clone this repository to your new Windows machine.
-2. Run `setup.bat` as administrator.
-3. Follow the logs and prompts.
-4. Profit.
+Toggle features or extend the tools list with simple variables.
 
 ---
 
-> ⚠️ This setup is tailored to the author's personal needs. You are encouraged to fork and customize it to fit your own workflow.
+## 🔎 AI-Powered Package Discovery
+
+New feature: Search across **Chocolatey**, **Winget**, and **Scoop** with AI assistance.
+
+✅ Describe apps you want in English
+✅ AI extracts program names
+✅ Script searches all major Windows package managers
+✅ Interactive selector lets you pick and save packages
+✅ Supports mixed sources (e.g., Chocolatey + Scoop)
+
+---
+
+## ❌ Easy App Removal
+
+Built-in uninstall script:
+
+* Detects installed apps across Chocolatey, Winget, and Scoop
+* Compact, sorted list shown in console
+* Enter names to uninstall
+* Script loops until you exit
+* Cleans up system without guesswork
+
+---
+
+# 🏑 Quick Start
+
+```bash
+git clone https://github.com/your-repo/windows-dev-setup.git
+cd windows-dev-setup
+```
+
+Setup system:
+
+```bat
+setup.bat
+```
+
+Discover and install more tools:
+
+```bat
+search.bat
+```
+Uninstall apps:
+
+```bat
+uninstall.bat
+```
+Follow logs and prompts.
+
+---
+
+## 🧙‍♂️ Recommended Use
+
+* Fork for personal setups
+* Extend with your favorite tools or configs
+* Ideal for fresh Windows installs or automated reconfiguration
+
+---
+
+*Built by Dimas for personal productivity. Fork freely and adapt for your needs.*
+
+## To-Do
+* Add more system tweaks (e.g., registry changes)
+* Improve main setup script with expanding package manager support
