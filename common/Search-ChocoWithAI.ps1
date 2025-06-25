@@ -119,38 +119,22 @@ foreach ($prog in $programs) {
     }
     catch { Write-Host "[ERROR] Failed to search Winget" -ForegroundColor Red }
 
-Write-Host "[...] Searching for '$prog' in Scoop..." -ForegroundColor Cyan
-Write-Host "[...] Searching for '$prog' in Scoop..." -ForegroundColor Cyan
+    Write-Host "[...] Searching for '$prog' in Scoop..." -ForegroundColor Cyan
 try {
-    $scoopResults = scoop search $prog 2>&1
+    $scoopResults = scoop search $prog | ForEach-Object { $_ }
 
-    $parse = $false
-    foreach ($line in $scoopResults) {
-        Write-Host "[SCOOP] Processing line: $line" -ForegroundColor Gray
-        if ($line -match '^Name\s+Version\s+Source') {
-            $parse = $true
-            continue
-        }
+    $scoopResults | ForEach-Object { Write-Host ($_ | Out-String).Trim() -ForegroundColor DarkGray }
 
-        # Пропуск строки-информатора
-        if ($line -match '^Results from local buckets') {
-            continue
-        }
-
-        if ($parse -and $line.Trim() -ne "") {
-            $parts = $line -split "\s{2,}"  # разделяем по двойным пробелам
-            $id = $parts[0].Trim()
-
-            if ($id -and ($allPackages.PackageId -notcontains $id)) {
-                $obj = [PSCustomObject]@{
-                    PackageId     = $id
-                    DownloadCount = 0
-                    Installer     = "scoop"
-                    Selected      = $false
-                }
-                $allPackages += $obj
-                Write-Host "[SCOOP] Found: $($obj.PackageId)"
+    foreach ($item in $scoopResults) {
+        if ($item.Name) {
+            $obj = [PSCustomObject]@{
+                PackageId     = $item.Name
+                DownloadCount = 0
+                Installer     = "scoop"
+                Selected      = $false
             }
+            $allPackages += $obj
+            Write-Host "[SCOOP] Found: $($obj.PackageId)" -ForegroundColor Green
         }
     }
 }
@@ -158,21 +142,14 @@ catch {
     Write-Host "[ERROR] Failed to search Scoop" -ForegroundColor Red
 }
 
-
-
-
 }
-
 
 
 if (-not $allPackages.Count) {
     Write-Host "[WARNING] No packages found. Exiting." -ForegroundColor Yellow
+    pause
     exit
 }
-
-# Write-Host "[ERROR] This script requires administrator privileges. Please run as Administrator." -ForegroundColor Red
-# Pause
-# exit
 
 
 # Меню выбора
@@ -231,18 +208,29 @@ if (-not (Test-Path $tempPath)) {
     New-Item -Path $tempPath -ItemType Directory | Out-Null
 }
 
-$selectedTools = $selected | ForEach-Object { $_.PackageId }
-$selectedTools | ConvertTo-Json -Compress | Set-Content "$tempPath\selected-tools.json"
+$finalList = @()
 
+foreach ($item in $selected) {
+    $finalList += [PSCustomObject]@{
+        name      = $item.PackageId
+        installer = $item.Installer
+    }
+}
+
+# Даже если $finalList содержит 1 элемент, он будет сериализован как массив
+, $finalList | ConvertTo-Json -Depth 3 | Set-Content "$tempPath\selected-tools.json"
+
+
+# Сохраняем массив объектов как JSON
+# $selectedTools | ConvertTo-Json -Depth 3 -Compress | Set-Content "$tempPath\selected-tools.json"
+# $selectedTools | ConvertTo-Json -Depth 3 | Set-Content "$tempPath\selected-tools.json"
 Write-Host "`n[OK] Selected tools saved to temp\selected-tools.json" -ForegroundColor Green
-
-
 
 # Запускаем установку
 Write-Host "[...] Launching InstallCoreTools.ps1..." -ForegroundColor Cyan
 try {
     # tempory
-    # & powershell -ExecutionPolicy Bypass -File "$PSScriptRoot\..\program_groups\InstallCoreTools.ps1" -Strict
+    & powershell -ExecutionPolicy Bypass -File "$PSScriptRoot\..\common\InstallSearchTools.ps1"
 }
 catch {
     Write-Host "[ERROR] Failed to launch InstallCoreTools.ps1" -ForegroundColor Red
