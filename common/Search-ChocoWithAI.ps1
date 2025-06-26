@@ -119,28 +119,28 @@ foreach ($prog in $programs) {
     }
     catch { Write-Host "[ERROR] Failed to search Winget" -ForegroundColor Red }
 
-    Write-Host "[...] Searching for '$prog' in Scoop..." -ForegroundColor Cyan
-try {
-    $scoopResults = scoop search $prog | ForEach-Object { $_ }
+#     Write-Host "[...] Searching for '$prog' in Scoop..." -ForegroundColor Cyan
+# try {
+#     $scoopResults = scoop search $prog | ForEach-Object { $_ }
 
-    $scoopResults | ForEach-Object { Write-Host ($_ | Out-String).Trim() -ForegroundColor DarkGray }
+#     $scoopResults | ForEach-Object { Write-Host ($_ | Out-String).Trim() -ForegroundColor DarkGray }
 
-    foreach ($item in $scoopResults) {
-        if ($item.Name) {
-            $obj = [PSCustomObject]@{
-                PackageId     = $item.Name
-                DownloadCount = 0
-                Installer     = "scoop"
-                Selected      = $false
-            }
-            $allPackages += $obj
-            Write-Host "[SCOOP] Found: $($obj.PackageId)" -ForegroundColor Green
-        }
-    }
-}
-catch {
-    Write-Host "[ERROR] Failed to search Scoop" -ForegroundColor Red
-}
+#     foreach ($item in $scoopResults) {
+#         if ($item.Name) {
+#             $obj = [PSCustomObject]@{
+#                 PackageId     = $item.Name
+#                 DownloadCount = 0
+#                 Installer     = "scoop"
+#                 Selected      = $false
+#             }
+#             $allPackages += $obj
+#             Write-Host "[SCOOP] Found: $($obj.PackageId)" -ForegroundColor Green
+#         }
+#     }
+# }
+# catch {
+#     Write-Host "[ERROR] Failed to search Scoop" -ForegroundColor Red
+# }
 
 }
 
